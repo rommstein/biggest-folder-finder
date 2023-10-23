@@ -1,50 +1,46 @@
-import java.io.File;
+import java.util.HashMap;
 
 public class SizeCalculator {
-    private static long getFolderSize(File folder) {
-        if (folder.isFile()) {
-            return folder.length();
+
+    public static char[] sizeMultipliers = {'B', 'K', 'M', 'G', 'T'};
+
+    public static String getHumanReadableSize(long size) {
+        for (int i = 0; i < sizeMultipliers.length; i++) {
+            double value = size / Math.pow(1024, i);
+            if (value < 1024){
+                return Math.round(value) + "" + sizeMultipliers[i] + (i > 0 ? "b" : "");
+            }
         }
-        long sum = 0;
-        File[] files = folder.listFiles();
-        for (File file : files) {
-            sum += getFolderSize(file);
-        }
-        return sum;
+        return "Very Big!";
     }
-    private static String getHumanReadableSize(long size){
-        if (size < 1024){
-            return size + "b";
-        }
-        else if (size < 1024 * 1024){
-            int kbSize = (int) (size / 1024);
-            return kbSize + "kb";
-        }
-        else if (size < 1024 * 1024 * 1204){
-            int mbSize = (int) (size / 1024 * 1024);
-            return mbSize + "mb";
-        }
-        else{
-            int gbSize = (int) (size / 1024 * 1024 * 1024);
-            return gbSize + "gb";
-        }
+
+    public static long getSizeFromHumanReadable(String size) {
+        HashMap<Character, Integer> char2Multiplier = getMultipliers();
+        char sizeFactor = size.replaceAll("[0-9\\s+]+", "").charAt(0);
+        int multiplier = char2Multiplier.get(sizeFactor);
+        long length = multiplier * Long.valueOf(size.replaceAll("[^0-9]",""));
+        return length;
     }
-    private static long getSizeFromHumanReadable(String size){
-        long bytes = 0;
-        size = size.toLowerCase();
-        String value = size.replaceAll("[^0-9.]", "");
-        double numericValue = Double.parseDouble(value);
-        if (size.contains("gb") || size.contains("g")) {
-            bytes = Math.round(numericValue * Math.pow(1024, 3));
-        } else if (size.contains("mb") || size.contains("m")) {
-            bytes = Math.round(numericValue * Math.pow(1024, 2));
-        } else if (size.contains("kb") || size.contains("k")) {
-            bytes = Math.round(numericValue * 1024);
-        } else if (size.contains("b")) {
-            bytes = Math.round(numericValue);
-        } else {
-            System.out.println("Некорректный формат размера!");
+
+    public static HashMap<Character, Integer> getMultipliers() {
+        char[] multipliers = {'B', 'K', 'M', 'G', 'T'};
+        HashMap<Character, Integer> char2multiplier = new HashMap<>();
+        for (int i = 0; i < sizeMultipliers.length; i++) {
+            char2multiplier.put(sizeMultipliers[i], (int) Math.pow(1024, i));
         }
-        return bytes;
+        return char2multiplier;
     }
+
+//    private static long getFolderSize(File folder) {
+//        if (folder.isFile()) {
+//            return folder.length();
+//        }
+//        long sum = 0;
+//        File[] files = folder.listFiles();
+//        for (File file : files) {
+//            sum += getFolderSize(file);
+//        }
+//        return sum;
+//    }
+
 }
